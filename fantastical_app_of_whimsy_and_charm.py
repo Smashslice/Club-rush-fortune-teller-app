@@ -7,6 +7,66 @@ import time
 import re
 init(autoreset=True)  # Initialize colorama
 
+# Load environment variables
+load_dotenv()
+
+# Configuration
+BASE_URL = os.getenv("BASE_URL")
+APIKEY = os.getenv("APIKEY")
+API_BASE_URL = BASE_URL
+headers = {"Authorization": "Bearer " + APIKEY}
+
+default_sys_prompt = "You are a fortune teller who helps people tell fortunes! Keep things to one sentence."
+
+# Data structures
+adjectives = [
+   "enchanted",
+   "victorian", 
+   "tech bro",
+   "skater boy",
+   "she did ballet",
+   "poetic",
+   "playful",
+   "ancient",
+   "the traveling people from robert jordans the wheel of time",
+   "bohemian",
+   "sage-like",
+   "fantastical",
+   "vintage",
+    "fanciful",
+    "valley girl"
+]
+
+adjectives_dict = {
+    "enchanted": "fairy green",
+    "victorian": "faded yellow",
+    "tech bro": "vivid blue",
+    "skater boy": "grunge grey",
+    "she did ballet": "pastel pink",
+    "poetic": "deep purple",
+    "playful": "bright orange",
+    "ancient": "earthy brown",
+    "the traveling people from robert jordans the wheel of time": "rainbow chars",
+    "bohemian": "blue and green and yellow",
+    "sage-like": "soft grey",
+    "fantastical": "sunburst yellow with interspersed purple",
+    "vintage": "sepia",
+    "fanciful": "bubblegum pink",
+    "valley girl": "neon pink and bright blue",
+    "whimsical": "blue, purple, and silver",
+    "trippy hippy": "tie-dye",
+    "mysterious": "black and red"
+}
+
+bewitched_sounds = ['*cackle*', '*;)*', '*hehehe*', '*bwahaha*', '*snicker*', '*chortle*', '*giggle*', '*snort*']
+cursed_sounds = ['You hear the sound of bones rattling...', 'A chill sweeps through the air...', 'A faint whisper echoes...', '.....Is there someone behind you? . . .']
+
+inputs = [
+    { "role": "system", "content": f"{default_sys_prompt}" },
+    { "role": "user", "content": f"" }
+]
+
+# Utility functions
 def calculate_visible_length(text):
     """Calculate the visible length of text excluding ANSI codes"""
     # Find all ANSI codes
@@ -167,71 +227,129 @@ def generate_cursed_message():
         
         output_lines.append(("\t\t\t\t\t\t\t\t" if i == 0 else "") + line)
     
-    return '\n\t\t\t\t\t\t\t\t'.join(output_lines) 
+    return '\n\t\t\t\t\t\t\t\t'.join(output_lines)
 
-load_dotenv()
+def apply_text_styling(response_text, current_adjective, is_cursed):
+    """Apply color and style formatting to response text based on adjective or cursed state"""
+    if is_cursed:
+        # Apply cursed styling (alternating black and red words)
+        styled_text = ""
+        for i, word in enumerate(response_text.split()):
+            if i % 2 == 0:
+                styled_text += f"{Style.DIM}{word} "
+            else:
+                styled_text += f"{Fore.RED}{Style.BRIGHT}{word} "
+        styled_text += Style.RESET_ALL
+        return styled_text
+    
+    if current_adjective in adjectives_dict:
+        style = adjectives_dict[current_adjective]
+        
+        # Apply different color combinations based on the style
+        if style == "fairy green":
+            return f"{Fore.GREEN}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
+        elif style == "faded yellow":
+            return f"{Fore.YELLOW}{Style.DIM}{response_text}{Style.RESET_ALL}"
+        elif style == "vivid blue":
+            return f"{Fore.BLUE}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
+        elif style == "grunge grey":
+            return f"{Fore.WHITE}{Style.DIM}{response_text}{Style.RESET_ALL}"
+        elif style == "pastel pink":
+            return f"{Fore.MAGENTA}{Style.DIM}{response_text}{Style.RESET_ALL}"
+        elif style == "deep purple":
+            return f"{Fore.MAGENTA}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
+        elif style == "bright orange":
+            return f"{Fore.RED}{Fore.YELLOW}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
+        elif style == "earthy brown":
+            return f"{Fore.RED}{Style.DIM}{response_text}{Style.RESET_ALL}"
+        elif style == "rainbow chars":
+            colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA]
+            styled_text = ""
+            for i, char in enumerate(response_text):
+                styled_text += f"{colors[i % len(colors)]}{char}"
+            return styled_text + Style.RESET_ALL
+        elif style == "blue and green and yellow":
+            return f"{Fore.BLUE}{response_text[:len(response_text)//3]}{Fore.GREEN}{response_text[len(response_text)//3:2*len(response_text)//3]}{Fore.YELLOW}{response_text[2*len(response_text)//3:]}{Style.RESET_ALL}"
+        elif style == "soft grey":
+            return f"{Fore.WHITE}{Style.DIM}{response_text}{Style.RESET_ALL}"
+        elif style == "sunburst yellow with interspersed purple":
+            styled_text = ""
+            for i, char in enumerate(response_text):
+                if i % 5 == 0:
+                    styled_text += f"{Fore.MAGENTA}{char}"
+                else:
+                    styled_text += f"{Fore.YELLOW}{Style.BRIGHT}{char}"
+            return styled_text + Style.RESET_ALL
+        elif style == "sepia":
+            return f"{Fore.YELLOW}{Style.DIM}{response_text}{Style.RESET_ALL}"
+        elif style == "bubblegum pink":
+            return f"{Fore.MAGENTA}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
+        elif style == "neon pink and bright blue":
+            words = re.split('(\\s+)', response_text)
+            styled_text = ""
+            word_count = 0
+            for part in words:
+                if part.strip():  # If it's a word
+                    if word_count % 2 == 0:
+                        styled_text += f"{Fore.MAGENTA}{Style.BRIGHT}{part}"
+                    else:
+                        styled_text += f"{Fore.BLUE}{Style.BRIGHT}{part}"
+                    word_count += 1
+                else:  # If it's spacing
+                    styled_text += part
+            return styled_text + Style.RESET_ALL
+        elif style == "blue, purple, and silver":
+            return f"{Fore.BLUE}{response_text[:len(response_text)//3]}{Fore.MAGENTA}{response_text[len(response_text)//3:2*len(response_text)//3]}{Style.DIM}{Fore.WHITE}{response_text[2*len(response_text)//3:]}{Style.RESET_ALL}"
+        elif style == "tie-dye":
+            colors = [Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.MAGENTA, Fore.CYAN]
+            words = re.split('(\\s+)', response_text)
+            styled_text = ""
+            word_count = 0
+            for part in words:
+                if part.strip():  # If it's a word
+                    styled_text += f"{colors[word_count % len(colors)]}{Style.BRIGHT}{part}"
+                    word_count += 1
+                else:  # If it's spacing
+                    styled_text += part
+            return styled_text + Style.RESET_ALL
+        elif style == "neon":
+            colors = [Fore.CYAN, Fore.MAGENTA]
+            words = re.split('(\\s+)', response_text)
+            styled_text = ""
+            word_count = 0
+            for part in words:
+                if part.strip():  # If it's a word
+                    styled_text += f"{Style.BRIGHT}{colors[word_count % len(colors)]}{part}"
+                    word_count += 1
+                else:  # If it's spacing
+                    styled_text += part
+            return styled_text + Style.RESET_ALL
+        elif style == "black and red":
+            # Split keeping spaces and empty strings
+            words = re.split('(\\s+)', response_text)
+            styled_text = ""
+            word_count = 0
+            for part in words:
+                if part.strip():  # If it's a word
+                    if word_count % 2 == 0:
+                        styled_text += f"{Style.DIM}{part}"
+                    else:
+                        styled_text += f"{Fore.RED}{Style.BRIGHT}{part}"
+                    word_count += 1
+                else:  # If it's spacing
+                    styled_text += part
+            return styled_text + Style.RESET_ALL
+    
+    # Default case
+    return response_text
 
-BASE_URL = os.getenv("BASE_URL")
-APIKEY = os.getenv("APIKEY")
-API_BASE_URL = BASE_URL
-headers = {"Authorization": "Bearer " + APIKEY}
-
-default_sys_prompt = "You are a fortune teller who helps people tell fortunes! Keep things to one sentence."
-
-inputs = [
-    { "role": "system", "content": f"{default_sys_prompt}" },
-    { "role": "user", "content": f"" }
-]
-
-adjectives = [
-   "enchanted",
-   "victorian", 
-   "tech bro",
-   "skater boy",
-   "she did ballet",
-   "poetic",
-   "playful",
-   "ancient",
-   "the traveling people from robert jordans the wheel of time",
-   "bohemian",
-   "sage-like",
-   "fantastical",
-   "vintage",
-    "fanciful",
-    "valley girl"
-]
-
-adjectives_dict = {
-    "enchanted": "fairy green",
-    "victorian": "faded yellow",
-    "tech bro": "vivid blue",
-    "skater boy": "grunge grey",
-    "she did ballet": "pastel pink",
-    "poetic": "deep purple",
-    "playful": "bright orange",
-    "ancient": "earthy brown",
-    "the traveling people from robert jordans the wheel of time": "rainbow chars",
-    "bohemian": "blue and green and yellow",
-    "sage-like": "soft grey",
-    "fantastical": "sunburst yellow with interspersed purple",
-    "vintage": "sepia",
-    "fanciful": "bubblegum pink",
-    "valley girl": "neon pink and bright blue",
-    "whimsical": "blue, purple, and silver",
-    "trippy hippy": "tie-dye",
-    "mysterious": "black and red"
-}
-
-bewitched_sounds = ['*cackle*', '*;)*', '*hehehe*', '*bwahaha*', '*snicker*', '*chortle*', '*giggle*', '*snort*']
-cursed_sounds = ['You hear the sound of bones rattling...', 'A chill sweeps through the air...', 'A faint whisper echoes...', '.....Is there someone behind you? . . .']
-
+# API functions
 def run(model, inputs):
     input = { "messages": inputs }
     response = requests.post(f"{API_BASE_URL}{model}", headers=headers, json=input)
     return response.json()
 
 def change_inputs(sys_prompt, user_prompt, adjective, is_bewitched, is_cursed):
-
     if not is_bewitched:
         print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
         inputs = [
@@ -251,14 +369,15 @@ def change_inputs(sys_prompt, user_prompt, adjective, is_bewitched, is_cursed):
             { "role": "system", "content": f"{sys_prompt}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
-    print(f"System prompt: {inputs[0]['content']}")
-    print(f"User prompt: {inputs[1]['content']}")
+    # print(f"System prompt: {inputs[0]['content']}")
+    # print(f"User prompt: {inputs[1]['content']}")
     return inputs
 
+# State check functions
 def check_if_bewitched():
     num = random.randrange(0, 5)
     # num = random.randrange(0, 1)
-    print(f"Bewitchment roll: {num}")
+    # print(f"Bewitchment roll: {num}")
     if num == 0:
         num = random.randrange(0, len(bewitched_sounds))
         print(f"\t\t\t\t\t\t\t\t\t{bewitched_sounds[num]}")
@@ -269,14 +388,15 @@ def check_if_bewitched():
 def check_if_cursed():
     num = random.randrange(0, 3)
     # num = random.randrange(0, 1)
-    print(f"Cursed roll: {num}")
+    # print(f"Cursed roll: {num}")
     if num == 0:
         num = random.randrange(0, len(cursed_sounds))
         print(f"\t\t\t\t\t\t\t\t{cursed_sounds[num]}")
         return True
     else:
         return False
-    
+
+# Main loop
 telling_fortunes = True
 
 while(telling_fortunes) == True:
@@ -289,7 +409,7 @@ while(telling_fortunes) == True:
         is_cursed = check_if_cursed()
         if is_cursed:
             num = random.randrange(0, 4)
-            print(f"Cursed scenario roll: {num}")
+            # print(f"Cursed scenario roll: {num}")
             if num == 0:
                 sys_prompt = "You are a wicked witch who loves to curse people. You take pleasure in making people's lives miserable. You are sarcastic, mean, and enjoy causing chaos. You always give answers that are harmful and negative, and you never help people. You are very creative in your curses and love to come up with new ways to ruin someone's day. Keep it to one sentence."
                 user_prompt = f"{user_question}. Give them a curse that will make their life miserable."
@@ -309,7 +429,7 @@ while(telling_fortunes) == True:
         else:
             is_cursed = False
             num = random.randrange(0, 3)
-            print(f"Style roll: {num}")
+            # print(f"Style roll: {num}")
             if num == 0:
                 sys_prompt = f"{default_sys_prompt}."
                 user_prompt = f"{user_question}"
@@ -342,123 +462,14 @@ while(telling_fortunes) == True:
         sys_prompt = f"{default_sys_prompt}."
         user_prompt = f"{user_question}"
         inputs = change_inputs(sys_prompt, user_prompt, adjectives[num], is_bewitched, is_cursed)
-    # print(inputs[0]['content'])
+    
+    # Get AI response
     output = run("@cf/meta/llama-3-8b-instruct", inputs)
     response_text = output["result"]["response"]
     
     # Apply styling based on the chosen adjective or cursed state
-    if not is_cursed:
-        current_adjective = inputs[0]["content"].split("Use this adjective to style your response: ")[-1].strip(".")
-        if current_adjective in adjectives_dict:
-            style = adjectives_dict[current_adjective]
-            # Apply different color combinations based on the style
-            if style == "fairy green":
-                styled_text = f"{Fore.GREEN}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
-            elif style == "faded yellow":
-                styled_text = f"{Fore.YELLOW}{Style.DIM}{response_text}{Style.RESET_ALL}"
-            elif style == "vivid blue":
-                styled_text = f"{Fore.BLUE}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
-            elif style == "grunge grey":
-                styled_text = f"{Fore.WHITE}{Style.DIM}{response_text}{Style.RESET_ALL}"
-            elif style == "pastel pink":
-                styled_text = f"{Fore.MAGENTA}{Style.DIM}{response_text}{Style.RESET_ALL}"
-            elif style == "deep purple":
-                styled_text = f"{Fore.MAGENTA}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
-            elif style == "bright orange":
-                styled_text = f"{Fore.RED}{Fore.YELLOW}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
-            elif style == "earthy brown":
-                styled_text = f"{Fore.RED}{Style.DIM}{response_text}{Style.RESET_ALL}"
-            elif style == "rainbow chars":
-                colors = [Fore.RED, Fore.YELLOW, Fore.GREEN, Fore.CYAN, Fore.BLUE, Fore.MAGENTA]
-                styled_text = ""
-                for i, char in enumerate(response_text):
-                    styled_text += f"{colors[i % len(colors)]}{char}"
-                styled_text += Style.RESET_ALL
-            elif style == "blue and green and yellow":
-                styled_text = f"{Fore.BLUE}{response_text[:len(response_text)//3]}{Fore.GREEN}{response_text[len(response_text)//3:2*len(response_text)//3]}{Fore.YELLOW}{response_text[2*len(response_text)//3:]}{Style.RESET_ALL}"
-            elif style == "soft grey":
-                styled_text = f"{Fore.WHITE}{Style.DIM}{response_text}{Style.RESET_ALL}"
-            elif style == "sunburst yellow with interspersed purple":
-                styled_text = ""
-                for i, char in enumerate(response_text):
-                    if i % 5 == 0:
-                        styled_text += f"{Fore.MAGENTA}{char}"
-                    else:
-                        styled_text += f"{Fore.YELLOW}{Style.BRIGHT}{char}"
-                styled_text += Style.RESET_ALL
-            elif style == "sepia":
-                styled_text = f"{Fore.YELLOW}{Style.DIM}{response_text}{Style.RESET_ALL}"
-            elif style == "bubblegum pink":
-                styled_text = f"{Fore.MAGENTA}{Style.BRIGHT}{response_text}{Style.RESET_ALL}"
-            elif style == "neon pink and bright blue":
-                words = re.split('(\\s+)', response_text)
-                styled_text = ""
-                word_count = 0
-                for part in words:
-                    if part.strip():  # If it's a word
-                        if word_count % 2 == 0:
-                            styled_text += f"{Fore.MAGENTA}{Style.BRIGHT}{part}"
-                        else:
-                            styled_text += f"{Fore.BLUE}{Style.BRIGHT}{part}"
-                        word_count += 1
-                    else:  # If it's spacing
-                        styled_text += part
-                styled_text += Style.RESET_ALL
-            elif style == "blue, purple, and silver":
-                styled_text = f"{Fore.BLUE}{response_text[:len(response_text)//3]}{Fore.MAGENTA}{response_text[len(response_text)//3:2*len(response_text)//3]}{Style.DIM}{Fore.WHITE}{response_text[2*len(response_text)//3:]}{Style.RESET_ALL}"
-            elif style == "tie-dye":
-                colors = [Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.MAGENTA, Fore.CYAN]
-                words = re.split('(\\s+)', response_text)
-                styled_text = ""
-                word_count = 0
-                for part in words:
-                    if part.strip():  # If it's a word
-                        styled_text += f"{colors[word_count % len(colors)]}{Style.BRIGHT}{part}"
-                        word_count += 1
-                    else:  # If it's spacing
-                        styled_text += part
-                styled_text += Style.RESET_ALL
-            elif style == "neon":
-                colors = [Fore.CYAN, Fore.MAGENTA]
-                words = re.split('(\\s+)', response_text)
-                styled_text = ""
-                word_count = 0
-                for part in words:
-                    if part.strip():  # If it's a word
-                        styled_text += f"{Style.BRIGHT}{colors[word_count % len(colors)]}{part}"
-                        word_count += 1
-                    else:  # If it's spacing
-                        styled_text += part
-                styled_text += Style.RESET_ALL
-            elif style == "black and red":
-                import re
-                # Split keeping spaces and empty strings
-                words = re.split('(\\s+)', response_text)
-                styled_text = ""
-                word_count = 0
-                for part in words:
-                    if part.strip():  # If it's a word
-                        if word_count % 2 == 0:
-                            styled_text += f"{Style.DIM}{part}"
-                        else:
-                            styled_text += f"{Fore.RED}{Style.BRIGHT}{part}"
-                        word_count += 1
-                    else:  # If it's spacing
-                        styled_text += part
-                styled_text += Style.RESET_ALL
-            else:
-                styled_text = response_text
-        else:
-            styled_text = response_text
-    else:
-        # Apply cursed styling (alternating black and red words)
-        styled_text = ""
-        for i, word in enumerate(response_text.split()):
-            if i % 2 == 0:
-                styled_text += f"{Style.DIM}{word} "
-            else:
-                styled_text += f"{Fore.RED}{Style.BRIGHT}{word} "
-        styled_text += Style.RESET_ALL
+    current_adjective = inputs[0]["content"].split("Use this adjective to style your response: ")[-1].strip(".") if not is_cursed else ""
+    styled_text = apply_text_styling(response_text, current_adjective, is_cursed)
 
     # Create bordered version of the styled text
     border_color = Fore.RED if is_cursed else (Fore.MAGENTA if is_bewitched else Fore.CYAN)
@@ -480,5 +491,5 @@ while(telling_fortunes) == True:
             print(line)
     time.sleep(5)
     print(f'\n\t\t\t\t\t\t\t{Fore.BLUE}~~~~~~** preparing for the next fortune... **~~~~~~{Style.RESET_ALL}\n')
-    time.sleep(0.5)
+    time.sleep(10)
     os.system('cls' if os.name in ('nt', 'dos') else 'clear')
