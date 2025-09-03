@@ -351,20 +351,20 @@ def run(model, inputs):
 
 def change_inputs(sys_prompt, user_prompt, adjective, is_bewitched, is_cursed):
     if not is_bewitched:
-        print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
+        # print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     elif is_bewitched and not is_cursed:
-        print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
+        # print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
         
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     else:
-        print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
+        # print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt}" },
             { "role": "user", "content": f"{user_prompt}" }
