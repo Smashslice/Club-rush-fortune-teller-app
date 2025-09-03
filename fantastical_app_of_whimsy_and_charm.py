@@ -233,32 +233,32 @@ def run(model, inputs):
 def change_inputs(sys_prompt, user_prompt, adjective, is_bewitched, is_cursed):
 
     if not is_bewitched:
-        print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
+        # print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     elif is_bewitched and not is_cursed:
-        print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
+        # print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
         
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     else:
-        print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
+        # print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
-    print(f"System prompt: {inputs[0]['content']}")
-    print(f"User prompt: {inputs[1]['content']}")
+    # print(f"System prompt: {inputs[0]['content']}")
+    # print(f"User prompt: {inputs[1]['content']}")
     return inputs
 
 def check_if_bewitched():
-    # num = random.randrange(0, 5)
+    num = random.randrange(0, 5)
     num = random.randrange(0, 1)
-    print(f"Bewitchment roll: {num}")
+    # print(f"Bewitchment roll: {num}")
     if num == 0:
         num = random.randrange(0, len(bewitched_sounds))
         print(f"\t\t\t\t\t\t\t\t\t{bewitched_sounds[num]}")
@@ -269,7 +269,7 @@ def check_if_bewitched():
 def check_if_cursed():
     num = random.randrange(0, 3)
     # num = random.randrange(0, 1)
-    print(f"Cursed roll: {num}")
+    # print(f"Cursed roll: {num}")
     if num == 0:
         num = random.randrange(0, len(cursed_sounds))
         print(f"\t\t\t\t\t\t\t\t{cursed_sounds[num]}")
@@ -308,7 +308,7 @@ while(telling_fortunes) == True:
         else:
             is_cursed = False
             num = random.randrange(0, 3)
-            print(f"Style roll: {num}")
+            # print(f"Style roll: {num}")
             if num == 0:
                 sys_prompt = f"{default_sys_prompt}."
                 user_prompt = f"{user_question}"
