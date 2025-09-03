@@ -491,5 +491,5 @@ while(telling_fortunes) == True:
             print(line)
     time.sleep(5)
     print(f'\n\t\t\t\t\t\t\t{Fore.BLUE}~~~~~~** preparing for the next fortune... **~~~~~~{Style.RESET_ALL}\n')
-    time.sleep(10)
+    time.sleep(30)
     os.system('cls' if os.name in ('nt', 'dos') else 'clear')
