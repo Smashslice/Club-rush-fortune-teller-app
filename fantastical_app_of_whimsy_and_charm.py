@@ -180,7 +180,7 @@ default_sys_prompt = "You are a fortune teller who helps people tell fortunes! K
 
 inputs = [
     { "role": "system", "content": f"{default_sys_prompt}" },
-    { "role": "user", "content": f"I got a B in my English class, is my life over?" }
+    { "role": "user", "content": f"" }
 ]
 
 adjectives = [
@@ -233,35 +233,35 @@ def run(model, inputs):
 def change_inputs(sys_prompt, user_prompt, adjective, is_bewitched, is_cursed):
 
     if not is_bewitched:
-        # print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
+        print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     elif is_bewitched and not is_cursed:
-        # print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
+        print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
         
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     else:
-        # print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
+        print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
-    # print(f"System prompt: {inputs[0]['content']}")
-    # print(f"User prompt: {inputs[1]['content']}")
+    print(f"System prompt: {inputs[0]['content']}")
+    print(f"User prompt: {inputs[1]['content']}")
     return inputs
 
 def check_if_bewitched():
-    num = random.randrange(0, 5)
-    # num = random.randrange(0, 1)
-    # print(f"Bewitchment roll: {num}")
+    # num = random.randrange(0, 5)
+    num = random.randrange(0, 1)
+    print(f"Bewitchment roll: {num}")
     if num == 0:
         num = random.randrange(0, len(bewitched_sounds))
-        print(f"\t\t\t\t\t\t\t\t\t\t\t{bewitched_sounds[num]}")
+        print(f"\t\t\t\t\t\t\t\t\t{bewitched_sounds[num]}")
         return True
     else:
         return False
@@ -269,10 +269,10 @@ def check_if_bewitched():
 def check_if_cursed():
     num = random.randrange(0, 3)
     # num = random.randrange(0, 1)
-    # print(f"Cursed roll: {num}")
+    print(f"Cursed roll: {num}")
     if num == 0:
         num = random.randrange(0, len(cursed_sounds))
-        print(f"\t\t\t\t\t\t\t\t\t{cursed_sounds[num]}")
+        print(f"\t\t\t\t\t\t\t\t{cursed_sounds[num]}")
         return True
     else:
         return False
@@ -280,8 +280,9 @@ def check_if_cursed():
 telling_fortunes = True
 
 while(telling_fortunes) == True:
-    user_question = "I got a B in my English class, is my life over?"
-    # user_question = input("What do you want to know about your future? ")
+    # user_question = "I got a B in my English class, is my life over?"
+    os.system('cls' if os.name in ('nt', 'dos') else 'clear')
+    user_question = input(f"\n\t\t\t\t\t\t{Fore.GREEN}~~~~~~**What do you want to know about your future?**~~~~~~{Style.RESET_ALL}\n\t\t\t\t\t\t\t{Fore.YELLOW}")
     is_bewitched = check_if_bewitched()
     if is_bewitched:
         is_cursed = check_if_cursed()
@@ -301,44 +302,46 @@ while(telling_fortunes) == True:
                 user_prompt = f"{user_question}. "
                 inputs = change_inputs(sys_prompt, user_prompt, "", is_bewitched, is_cursed)
             elif num == 3:
-                print("Fool! You should know better than to meddle with the future, one glimpse could cause ruin. RUIN! Begone before I decide to use your toes for my next potion!")
-                continue
-    else:
-        is_cursed = False
-        num = random.randrange(0, 3)
-        if num == 0:
-            sys_prompt = f"{default_sys_prompt}."
-            user_prompt = f"{user_question}"
-            inputs = change_inputs(sys_prompt, user_prompt, "whimsical", is_bewitched, is_cursed)
-        elif num == 1:
-            sys_prompt = f"{default_sys_prompt}."
-            user_prompt = f"{user_question}"
-            inputs = change_inputs(sys_prompt, user_prompt, "trippy hippy", is_bewitched, is_cursed)
-        elif num == 2:
-            sys_prompt = f"{default_sys_prompt}."
-            user_prompt = f"{user_question}"
-            inputs = change_inputs(sys_prompt, user_prompt, "mysterious", is_bewitched, is_cursed)
-        else: 
-            user_choice = input("Do you want a specific style for your fortune? (y/n) ")
-            if user_choice.lower() == 'y':
-                print("Here are the available styles:")
-                for i, adj in enumerate(adjectives):
-                    print(f"{i}: {adj}")
-                choice = int(input("Enter the number of your chosen style: "))
-                if 0 <= choice < len(adjectives):
-                    chosen_adjective = adjectives[choice]
+                sys_prompt = "You are an angry witch who refuses to tell fortunes and scolds people for asking."
+                user_prompt = f"Someone asked: {user_question}"
+                inputs = change_inputs(sys_prompt, user_prompt, "", is_bewitched, is_cursed)
+        else:
+            is_cursed = False
+            num = random.randrange(0, 3)
+            print(f"Style roll: {num}")
+            if num == 0:
+                sys_prompt = f"{default_sys_prompt}."
+                user_prompt = f"{user_question}"
+                inputs = change_inputs(sys_prompt, user_prompt, "whimsical", is_bewitched, is_cursed)
+            elif num == 1:
+                sys_prompt = f"{default_sys_prompt}."
+                user_prompt = f"{user_question}"
+                inputs = change_inputs(sys_prompt, user_prompt, "trippy hippy", is_bewitched, is_cursed)
+            elif num == 2:
+                sys_prompt = f"{default_sys_prompt}."
+                user_prompt = f"{user_question}"
+                inputs = change_inputs(sys_prompt, user_prompt, "mysterious", is_bewitched, is_cursed)
+            else: 
+                user_choice = input("Do you want a specific style for your fortune? (y/n) ")
+                if user_choice.lower() == 'y':
+                    print("Here are the available styles:")
+                    for i, adj in enumerate(adjectives):
+                        print(f"{i}: {adj}")
+                    choice = int(input("Enter the number of your chosen style: "))
+                    if 0 <= choice < len(adjectives):
+                        chosen_adjective = adjectives[choice]
+                    else:
+                        print("Invalid choice, defaulting to 'mysterious'.")
+                        chosen_adjective = "mysterious"
+                    sys_prompt = f"{default_sys_prompt}."
+                    user_prompt = f"{user_question}"
+                    inputs = change_inputs(sys_prompt, user_prompt, chosen_adjective, is_bewitched, is_cursed)
                 else:
-                    print("Invalid choice, defaulting to 'mysterious'.")
-                    chosen_adjective = "mysterious"
-                sys_prompt = f"{default_sys_prompt}."
-                user_prompt = f"{user_question}"
-                inputs = change_inputs(sys_prompt, user_prompt, chosen_adjective, is_bewitched, is_cursed)
-            else:
-                num = random.randrange(0, 15)
-                sys_prompt = f"{default_sys_prompt}."
-                user_prompt = f"{user_question}"
-                inputs = change_inputs(sys_prompt, user_prompt, adjectives[num], is_bewitched, is_cursed)
-    print(inputs[0]['content'])
+                    num = random.randrange(0, 15)
+                    sys_prompt = f"{default_sys_prompt}."
+                    user_prompt = f"{user_question}"
+                    inputs = change_inputs(sys_prompt, user_prompt, adjectives[num], is_bewitched, is_cursed)
+    # print(inputs[0]['content'])
     output = run("@cf/meta/llama-3-8b-instruct", inputs)
     response_text = output["result"]["response"]
     
@@ -474,5 +477,7 @@ while(telling_fortunes) == True:
             delay = random.betavariate(1.5, 4) * 0.6 + 0.1
             time.sleep(delay)
             print(line)
-    
-    telling_fortunes = False
+    time.sleep(5)
+    print(f'\n\t\t\t\t\t\t\t{Fore.BLUE}~~~~~~** preparing for the next fortune... **~~~~~~{Style.RESET_ALL}\n')
+    time.sleep(10)
+    os.system('cls' if os.name in ('nt', 'dos') else 'clear')
