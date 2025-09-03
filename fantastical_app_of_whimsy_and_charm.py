@@ -73,29 +73,29 @@ def create_decorative_border(text):
     # Create the pyramid-style borders
     bordered_lines = []
     # Top borders
-    bordered_lines.append("\t\t\t\t\t\t\t\t\t\t" + "~" * 30)
-    bordered_lines.append("\t\t\t\t\t\t\t" + "~" * 60)
-    bordered_lines.append("\t\t\t" + "~" * 155)
+    bordered_lines.append("\t\t\t\t\t\t\t\t" + "~" * 30)
+    bordered_lines.append("\t\t\t\t\t\t\t" + "~" * 50)
+    bordered_lines.append("\t\t\t" + "~" * 130)
     
     # Text lines with pyramid-style border
     for i, line in enumerate(wrapped_lines):
         # Configure tilde counts and tabs for pyramid effect
         if i == 1:  # Middle line gets the most tildes
-            left_tildes = "~" * 60
-            right_tildes = "~" * 60
+            left_tildes = "~" * 40
+            right_tildes = "~" * 40
             tabs = ""  # 7 tabs for middle line
         else:  # First and third lines get fewer tildes with extra on left
-            left_tildes = "~" * 5 + "~" * 45  # 5 extra on left for pyramid effect
-            right_tildes = "~" * 45
+            left_tildes = "~" * 5 + "~" * 30  # 5 extra on left for pyramid effect
+            right_tildes = "~" * 30
             tabs = "\t\t"
         
         # Add tabs for better centering
         bordered_lines.append(tabs + left_tildes + " " + line + " " + right_tildes)
     
     # Bottom borders in reverse
-    bordered_lines.append("\t\t\t" + "~" * 155)
-    bordered_lines.append("\t\t\t\t\t\t\t" + "~" * 60)
-    bordered_lines.append("\t\t\t\t\t\t\t\t\t\t" + "~" * 30)
+    bordered_lines.append("\t\t\t" + "~" * 130)
+    bordered_lines.append("\t\t\t\t\t\t\t" + "~" * 50)
+    bordered_lines.append("\t\t\t\t\t\t\t\t" + "~" * 30)
     
     return '\n'.join(bordered_lines)
 
@@ -233,32 +233,32 @@ def run(model, inputs):
 def change_inputs(sys_prompt, user_prompt, adjective, is_bewitched, is_cursed):
 
     if not is_bewitched:
-        print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
+        # print(f"Not cursed {is_cursed} or Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     elif is_bewitched and not is_cursed:
-        print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
+        # print(f"Not cursed {is_cursed} and Bewitched {is_bewitched}")
         
         inputs = [
             { "role": "system", "content": f"{sys_prompt} Use this adjective to style your response: {adjective}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
     else:
-        print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
+        # print(f"Cursed {is_cursed} and Bewitched {is_bewitched}")
         inputs = [
             { "role": "system", "content": f"{sys_prompt}" },
             { "role": "user", "content": f"{user_prompt}" }
         ]
-    print(f"System prompt: {inputs[0]['content']}")
-    print(f"User prompt: {inputs[1]['content']}")
+    # print(f"System prompt: {inputs[0]['content']}")
+    # print(f"User prompt: {inputs[1]['content']}")
     return inputs
 
 def check_if_bewitched():
     num = random.randrange(0, 5)
     # num = random.randrange(0, 1)
-    print(f"Bewitchment roll: {num}")
+    # print(f"Bewitchment roll: {num}")
     if num == 0:
         num = random.randrange(0, len(bewitched_sounds))
         print(f"\t\t\t\t\t\t\t\t\t\t\t{bewitched_sounds[num]}")
@@ -269,7 +269,7 @@ def check_if_bewitched():
 def check_if_cursed():
     num = random.randrange(0, 3)
     # num = random.randrange(0, 1)
-    print(f"Cursed roll: {num}")
+    # print(f"Cursed roll: {num}")
     if num == 0:
         num = random.randrange(0, len(cursed_sounds))
         print(f"\t\t\t\t\t\t\t\t\t{cursed_sounds[num]}")
@@ -338,7 +338,7 @@ while(telling_fortunes) == True:
                 sys_prompt = f"{default_sys_prompt}."
                 user_prompt = f"{user_question}"
                 inputs = change_inputs(sys_prompt, user_prompt, adjectives[num], is_bewitched, is_cursed)
-    
+    print(inputs[0]['content'])
     output = run("@cf/meta/llama-3-8b-instruct", inputs)
     response_text = output["result"]["response"]
     
@@ -463,11 +463,11 @@ while(telling_fortunes) == True:
     print("\n" + bordered_text.replace("~", f"{border_color}~{Style.RESET_ALL}"))
         
     if not is_bewitched and not is_cursed:
-        print('\n\t\t\t\t\t\t\t\033[36m~~~~~~**\033[1mThank you for visiting the mystical fortune teller\033[0m\033[36m**~~~~~~\033[0m\n\t\t\t\t\t\t\t\t\t\033[32m~~~~~**May your future be bright**~~~~~\033[0m')
+        print('\n\t\t\t\t\t\t\033[36m~~~~~~**\033[1mThank you for visiting the mystical fortune teller\033[0m\033[36m**~~~~~~\033[0m\n\t\t\t\t\t\t\t\t\033[32m~~~~~**May your future be bright**~~~~~\033[0m')
     elif is_bewitched and not is_cursed:
-        print('\n\t\t\t\t\t\t\t\033[35m~~~~~~**\033[1mThank you for visiting the mystical fortune teller\033[0m\033[35m**~~~~~~\033[0m\n\t\t\t\t\t\t\t\t\t\033[31m~~~~~**May your futu . . .**~~~~~\033[0m\n\t\t\t\t\t\t\t\t\t\t\033[3m\033[31m~~~~~**. . .something doesn\'t feel right about this**~~~~~\033[0m\n')
+        print('\n\t\t\t\t\t\t\t\033[35m~~~~~~**\033[1mThank you for visiting the mystical fortune teller\033[0m\033[35m**~~~~~~\033[0m\n\t\t\t\t\t\t\t\t\033[31m~~~~~**May your futu . . .**~~~~~\033[0m\n\t\t\t\t\t\t\t\t\t\033[3m\033[31m~~~~~**. . .something doesn\'t feel right about this**~~~~~\033[0m\n')
     elif is_cursed:
-        print(f'\n\t\t\t\t\t\t\t{Fore.RED}~~~~~~**{Style.BRIGHT}{Style.DIM}Thank you for visiting the mystical fortune teller{Style.RESET_ALL}{Fore.RED}**~~~~~~{Style.RESET_ALL}')
+        print(f'\n\t\t\t\t\t\t{Fore.RED}~~~~~~**{Style.BRIGHT}{Style.DIM}Thank you for visiting the mystical fortune teller{Style.RESET_ALL}{Fore.RED}**~~~~~~{Style.RESET_ALL}')
         # Add the cursed message after the fortune with a delay
         time.sleep(0.5)  # Short pause before the curse begins
         for line in generate_cursed_message().split('\n'):
